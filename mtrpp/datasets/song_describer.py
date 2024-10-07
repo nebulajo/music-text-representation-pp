@@ -9,7 +9,8 @@ from re import sub
 from typing import Callable, List, Dict, Any
 from datasets import load_dataset
 from torch.utils.data import Dataset
-from mtrpp.preprocessing.audio_utils import float32_to_int16, int16_to_float32, load_audio, STR_CH_FIRST
+# from mtrpp.preprocessing.audio_utils import float32_to_int16, int16_to_float32, load_audio, STR_CH_FIRST
+from mtrpp.utils.audio_utils import float32_to_int16, int16_to_float32, load_audio, STR_CH_FIRST
 
 class SongDescriber(Dataset):
     def __init__(self, data_dir, split, caption_type, audio_loader="ffmpeg", sr=22050, duration=10, audio_enc=".mp3"):
@@ -21,13 +22,16 @@ class SongDescriber(Dataset):
         self.caption_type = caption_type
         self.sr = sr
         self.n_samples = int(sr * duration)
-        self.dataset = load_dataset("music-temp/song-describer-dataset")
+        # self.dataset = load_dataset("music-temp/song_describer")
+        self.dataset_csv = "~/song_describer.csv" # csv file path
         self.get_split()
         self.get_columns()
 
+    # make dictionary
     def get_split(self):
-        dataset = self.dataset["train"]
-        df_anno = pd.DataFrame(dataset)
+        # df_anno = pd.DataFrame(dataset)
+        df_anno = pd.read_csv(self.dataset_csv)
+        df_anno = df_anno.dropna(subset=["is_valid_subset"]) # drop nan
         self.annotations = df_anno[df_anno["is_valid_subset"]]
         self.tid_to_path = {track_id:path for track_id, path in zip(self.annotations["track_id"], self.annotations["path"])}
         self.tid_to_idx = {tid:idx for idx, tid in enumerate(self.annotations['track_id'])}
