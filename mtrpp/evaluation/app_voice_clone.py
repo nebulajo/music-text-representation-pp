@@ -17,20 +17,14 @@ from googletrans import Translator
 from langdetect import detect
 
 parser = argparse.ArgumentParser(description="")
-parser.add_argument("--data_dir", type=str, default="../../dataset")
-parser.add_argument("--data_type", type=str, default="music_caps")
 parser.add_argument("--audio_loader", type=str, default="ffmpeg")
-parser.add_argument("--eval_query", type=str, default="caption")
 parser.add_argument("--device", type=str, default="cuda:0")
-# ttmr_pp config
-parser.add_argument('--model_type', type=str, default="ttmrpp")
-parser.add_argument("--caption_type", type=str, default="meta_tag_caption_sim")
+
 # train confing 
-parser.add_argument("--tid", default="base", type=str)
 parser.add_argument("--ckpt_type", default="last", type=str)
 
 # ckpt dir
-parser.add_argument("--ckpt", default="/home/hyebit/music-text-representation-pp/ckpt", type=str) 
+parser.add_argument("--ckpt", default="ckpt", type=str) 
 args = parser.parse_args()
 
 g2pk = G2pk()
