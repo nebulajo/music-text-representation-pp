@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../../../") # ~/music-text-representation-pp/
+
 import os
 import json
 import torch
@@ -26,7 +29,8 @@ parser.add_argument("--ckpt_type", default="last", type=str)
 args = parser.parse_args()
 
 def main(args):
-    save_dir = f"exp/{args.model_type}/{args.caption_type}"
+    # save_dir = f"exp/{args.model_type}/{args.caption_type}"
+    save_dir = "/home/hyebit/music-text-representation-pp/ckpt"
     model, sr, duration = load_ttmr_pp(save_dir, model_types=args.ckpt_type)
     print_model_params(model)
     model = model.to(args.device)
@@ -38,26 +42,28 @@ def main(args):
         data_holder = SongDescriber
         split = "is_valid_subset"
         
+    # dataset
     dataset = data_holder(
-        data_dir=args.data_dir,
-        split=split,
-        audio_loader=args.audio_loader,
+        data_dir=args.data_dir, # "../../dataset"
+        split=split, # is_valid_subset
+        audio_loader=args.audio_loader, # ffmpeg
         caption_type = "caption",
-        sr=sr,
-        duration=duration,
+        sr=sr, # 22050
+        duration=duration, # 10
         audio_enc = ".wav"
     )
-    binary_matrix, track2query, query2track = query_processor(dataset, args.eval_query)
-    unique_track = list(track2query.keys())
-    unique_query = list(query2track.keys())
+    binary_matrix, track2query, query2track = query_processor(dataset, args.eval_query) # args.eval_query : caption
+    unique_track = list(track2query.keys()) # 547
+    unique_query = list(query2track.keys()) # 746
     
     track2idx = {i:idx for idx, i in enumerate(unique_track)}
     query2idx = {i:idx for idx, i in enumerate(unique_query)}
     # query <-> track
     query2track_idx = get_query2target_idx(query2track, track2idx)
     
+    
     audio_features, query_features = [], []
-    for audio_id in tqdm(unique_track):
+    for audio_id in tqdm(unique_track): 
         audio = dataset.get_audio(audio_id)
         if audio.shape[0] == int(sr * duration):
             audio = audio.unsqueeze(0) # for pre-batch
